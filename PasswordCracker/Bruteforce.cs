@@ -32,6 +32,7 @@ namespace PasswordCracker
             try
             {
                 IDictionary<int, string> checkWord = new Dictionary<int, string>();
+
                 bool isRange = true;
 
                 if (range != "")

@@ -28,6 +28,7 @@ namespace PasswordCracker
                     User.SetPassword(tmp.Substring(0, tmp.IndexOf("\"}")));
 
                     string tmpPattern = jsonString.Substring(jsonString.IndexOf("bruteforcePattern\":") + 20);
+                    string serverId = jsonString.Substring(jsonString.IndexOf("\"}") + 3);
 
                     Bruteforce.setRange(tmpPattern.Substring(0, tmpPattern.IndexOf("\",\"password\"")));
 
@@ -44,9 +45,9 @@ namespace PasswordCracker
                         ts.Milliseconds / 10);
 
                     if(password != null)
-                        return Response.AsJson("Bruteforce attack detected - Password: " + password + " - Time: " + elapsedTime);
+                        return Response.AsJson(serverId+ "- Bruteforce attack detected - Password found: " + password + " - Time: " + elapsedTime);
 
-                    return Response.AsJson("Bruteforce attack detected - Password not found - Time: " + elapsedTime);
+                    return Response.AsJson(serverId+ "- Bruteforce attack detected - Password not found - Time: " + elapsedTime);
                 }
                 else
                 {
@@ -55,11 +56,30 @@ namespace PasswordCracker
 
                     if (jsonString.Contains("password\":\""))
                     {
-                        User.SetPassword(jsonString.Remove(0,11));
+                        string tmp = jsonString.Remove(0, 11);
+
+                        try
+                        {
+                            string serverId = tmp.Substring(tmp.IndexOf(" ")+1);
+                            string password = tmp.Remove(tmp.IndexOf(" "), 9);
+
+                            User.SetPassword(password);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
                     }
                     else
                     {
                         List<string> dictionary = JsonConvert.DeserializeObject<List<string>>(jsonString);
+
+                        int dictionaryCapacity = dictionary.Count();
+
+                        string serverId = dictionary[dictionaryCapacity - 1];
+
+                        dictionary.Remove(serverId);
+
                         Dictionary.setPackage(dictionary);
 
                         string crackResult = Dictionary.TryWord();
@@ -76,7 +96,7 @@ namespace PasswordCracker
                                 ts2.Hours, ts2.Minutes, ts2.Seconds,
                                 ts2.Milliseconds / 10);
 
-                            return Response.AsJson("Dictionary attack detected - Password found: " + crackResult + " - Time: " + elapsedTime2);
+                            return Response.AsJson(serverId +"- Dictionary attack detected - Password found: " + crackResult + " - Time: " + elapsedTime2);
                         }
                         else
                         {
@@ -90,7 +110,7 @@ namespace PasswordCracker
                                 ts2.Hours, ts2.Minutes, ts2.Seconds,
                                 ts2.Milliseconds / 10);
 
-                            return Response.AsJson("Dictionary attack detected - Password not found" + " - Time: " + elapsedTime2);
+                            return Response.AsJson(serverId +"- Dictionary attack detected - Password not found" + " - Time: " + elapsedTime2);
                         }
                     }
 

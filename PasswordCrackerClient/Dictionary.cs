@@ -7,6 +7,7 @@ namespace PasswordCrackerClient
     public class Dictionary
     {
 
+        static int packageSent = 0;
         static int packageSize = 0;
 
         public static List<string> getDictionary()
