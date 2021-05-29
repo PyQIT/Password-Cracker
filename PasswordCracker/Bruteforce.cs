@@ -5,7 +5,8 @@ namespace PasswordCracker
 {
     public class Bruteforce
     {
-        private static string range = "";
+        private static int range = 0;
+        private static int wordsCounter = 0;
 
         private static char[] characters =
         {
@@ -17,12 +18,22 @@ namespace PasswordCracker
         '6','7','8','9','0','!','$','#','@','-'
          };
 
-        public static string getRange()
+        public static int getWordsCounter()
+        {
+            return wordsCounter;
+        }
+
+        public static void setWordsCounter(int wordsCounterNew)
+        {
+            wordsCounter = wordsCounterNew;
+        }
+
+        public static int getRange()
         {
             return range;
         }
 
-        public static void setRange(string rangeNew)
+        public static void setRange(int rangeNew)
         {
             range = rangeNew;
         }
@@ -34,15 +45,8 @@ namespace PasswordCracker
                 IDictionary<int, string> checkWord = new Dictionary<int, string>();
 
                 bool isRange = true;
-
-                if (range != "")
-                {
-                    isRange = false;
-                    for (int i = 0; i < range.Length; i++)
-                    {
-                        checkWord.Add(i, Convert.ToString(range[i]));
-                    }
-                }
+                int wordsCountertmp = 0;
+                int rangeTmp = range;
 
                 for (int i = 0; i < characters.Length; i++)
                 {
@@ -53,6 +57,7 @@ namespace PasswordCracker
                     if (isRange)
                     {
                         checkWord.Add(key, Convert.ToString(value));
+
                         for (int j = 0; j < key + 1; j++)
                         {
                             password += checkWord[j];
@@ -65,10 +70,16 @@ namespace PasswordCracker
                         }
                     }
 
-                    if (Login.VerifyLogin(password))
-                        return password;
-                    else
+                    if (wordsCountertmp == rangeTmp)
                     {
+                        rangeTmp = rangeTmp + 4 * range;
+                    }
+                    else if (wordsCountertmp < rangeTmp && wordsCountertmp >= (rangeTmp - 100)) {
+                        wordsCounter++;
+                        if (Login.VerifyLogin(password))
+                            return password;
+                    }
+                        wordsCountertmp++;
                         if (i / (characters.Length - 1) == 1)
                         {
                             i = -1;
@@ -112,8 +123,6 @@ namespace PasswordCracker
                             else
                                 checkWord.Remove(key - 1);
                         }
-                            
-                    }
                     isRange = true;
                 }
                 return null;

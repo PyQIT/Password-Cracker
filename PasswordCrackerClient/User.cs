@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace PasswordCrackerClient
 {
-    public class User
+    static public class User
     {
-        private string password;
+        static private string password;
 
-        public void SetPassword(String password)
+        public static void SetPassword(String password1)
         {
-            this.password = password;
+            password = password1;
         }
 
-        public String GetPassword()
+        public static String GetPassword()
         {
             return password;
         }

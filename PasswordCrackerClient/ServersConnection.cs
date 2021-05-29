@@ -4,26 +4,32 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Linq;
 
 namespace PasswordCrackerClient
 {
     public class ServersConnection
     {
 
-        public static void PostRequestBruteForce(string url, User user, string bruteforcePattern, string serverId, Stopwatch stopWatch, int stopWatchHelper)
+
+        public static void PostRequestBruteForce(string url, int bruteforcePattern, string serverId, Stopwatch stopWatch, int stopWatchHelper)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            try
+            {
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
             httpWebRequest.Timeout = 10000000;
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = "{\"bruteforcePattern\":\"" + bruteforcePattern + "\"," +
-                              "\"password\":\"" + user.GetPassword() + "\"} " +
-                              serverId;
+                string json = "";
 
-                streamWriter.Write(json);
+                json = "{\"bruteforcePattern\":\"" + bruteforcePattern + "\"," +
+                       "\"password\":\"" + User.GetPassword() + "\"} " + serverId;
+
+                    streamWriter.Write(json);
             }
 
             Console.WriteLine("\n");
@@ -68,10 +74,19 @@ namespace PasswordCrackerClient
                 }
 
             }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
-        public static void PostRequestDictionary(string url, User user, List<string> dictionary, string serverId, Stopwatch stopWatch, int stopWatchHelper)
+        public static void PostRequestDictionary(string url, string serverId, Stopwatch stopWatch, int stopWatchHelper, List<List<string>> packages)
         {
+
+            List<string> dictionary = packages[Dictionary.getPackageSent()];
+            Dictionary.setPackageSent(Dictionary.getPackageSent() + 1);
+
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
@@ -110,8 +125,13 @@ namespace PasswordCrackerClient
                 }
                 else
                 {
-                    stopWatchHelper++;
-                    if (stopWatchHelper == 1)
+                    if (Dictionary.getPackageSent() < Dictionary.getPackagesNumber())
+                    {
+                        stopWatchHelper++;
+                        PostRequestDictionary(url, serverId, stopWatch, stopWatchHelper, packages);
+                    }
+
+                    if (stopWatchHelper == Dictionary.getPackagesNumber())
                     {
                         stopWatch.Stop();
 
@@ -129,7 +149,7 @@ namespace PasswordCrackerClient
             }
         }
 
-        public static void PostRequestDictionaryPassword(string url, User user, string serverId)
+        public static void PostRequestDictionaryPassword(string url, string serverId)
         {
 
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
@@ -139,7 +159,7 @@ namespace PasswordCrackerClient
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = "password\":\"" + user.GetPassword() + " " + serverId;
+                string json = "password\":\"" + User.GetPassword() + " " + serverId;
                 streamWriter.Write(json);
             }
 

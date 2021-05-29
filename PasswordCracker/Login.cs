@@ -11,7 +11,9 @@ namespace PasswordCracker
         public static bool VerifyLogin(string password)
         {
             if (User.GetPassword().Equals(HashPassword.generateMD5(password)))
+            {
                 return true;
+            }
             return false;
         }
     }

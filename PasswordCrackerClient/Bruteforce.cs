@@ -8,14 +8,14 @@ namespace PasswordCrackerClient
 {
     public class Bruteforce
     {
-        static string bruteforcePattern = "";
+        static int bruteforcePattern = 0;
 
-        public static void setBruteforcePattern(string bruteforcePatternNew)
+        public static void setBruteforcePattern(int bruteforcePatternNew)
         {
             bruteforcePattern = bruteforcePatternNew;
         }
 
-        public static string getBruteforcePattern()
+        public static int getBruteforcePattern()
         {
             return bruteforcePattern;
         }
